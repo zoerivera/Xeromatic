@@ -1,15 +1,16 @@
 ﻿--Reference Data for Tweet 
 MERGE INTO Tweet AS Target 
 USING (VALUES 
-  (N'I''m a tweet'),
-  (N'Also a tweet')
+  (1, 'I''m a tweet'),
+  (2, 'Also a tweet')
 ) 
-AS Source ([Text]) 
-ON Target.[Text] = Source.[Text] 
+AS Source ([Id], [Text]) 
+ON Target.[Id] = Source.[Id]
+AND Target.[Text] = Source.[Text] 
 --update matched rows 
 WHEN MATCHED THEN 
-UPDATE SET [Text] = Source.[Text] 
+UPDATE SET [Id] = Source.[Id] 
 --insert new rows 
 WHEN NOT MATCHED BY TARGET THEN 
-INSERT ([Text]) 
-VALUES ([Text]);
+INSERT ([Id], [Text]) 
+VALUES ([Id], [Text]);

@@ -15,7 +15,7 @@ var App = React.createClass({
 	//React function that runs after the app first loads
 	componentDidMount: function() {
 		var self = this;
-		fetch('/home/data', {method: 'get'})
+		fetch('/pinnedTweets', {method: 'get'})
 			.then(function(response) {
 				return response.json();
 			})
