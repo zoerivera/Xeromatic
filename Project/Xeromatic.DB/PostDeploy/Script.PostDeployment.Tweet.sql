@@ -5,8 +5,7 @@ USING (VALUES
   (2, 'Also a tweet')
 ) 
 AS Source ([Id], [Text]) 
-ON Target.[Id] = Source.[Id]
-AND Target.[Text] = Source.[Text] 
+ON Target.[Id] = Source.[Id] 
 --update matched rows 
 WHEN MATCHED THEN 
 UPDATE SET [Id] = Source.[Id] 
