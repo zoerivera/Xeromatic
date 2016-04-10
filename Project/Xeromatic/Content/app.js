@@ -2,7 +2,7 @@
 var Tweet = React.createClass({
 	render: function() {
 	    return (
-            <li className="list-group-item">
+            <li className="clearfix list-group-item">
             {this.props.text}
             {this.props.children}
             </li>
@@ -10,63 +10,76 @@ var Tweet = React.createClass({
 	}
 });
 
-var Button = React.createClass({ 
-    /* react components in uppercase (e.g. Button) so you know it's a react
-    component - something reusable, can be instantiated and included
-    in many different places */
+var Button = React.createClass({
     render: function() {
-        return <button className="btn btn-info pull-right">{this.props.label}</button>
-        /* pull-right is a bootstrap class that makes it float to the
-        right side of the page */
+        return <button onClick={this.props.link} className="btn btn-info pull-right">{this.props.label}</button>
     }
 });
 
 //React component that makes a call to the API in the HomeController. If more than one tweet is returned, it displays a Tweet component for each.
 var App = React.createClass({
-	//React function that sets the initial state of the app (where changeable data is stored)
-	getInitialState: function() {
-	    return {
-	        recentTweets: [],
+    getInitialState: function() {
+        return {
+            recentTweets: [],
             pinnedTweets: []
-	    };
-	},
+        };
+    },
 
-	//React function that runs after the app first loads
-	componentDidMount: function() {
-		var self = this; // 'self' refers to the whole component
-		var recentFetch = fetch('/recentTweets', {method: 'get'})
-			.then(function(response) { // This function turns response into json data
-				return response.json();
-			})
-
-		var pinnedFetch = fetch('/pinnedTweets', {method: 'get'})
-			.then(function(response) { // This function turns response into json data
+    //React function that runs after the app first loads
+    componentDidMount: function() {
+        var self = this;
+        var recentFetch = fetch('/recentTweets', {method: 'get'})
+			.then(function(response) {
 			    return response.json();
 			})
 
-        Promise.all([recentFetch, pinnedFetch]) // Wait for everything in these brackets to return before doing anything with them
-			.then(function(data) { // This function takes the result of the previous 'then' above 
+        var pinnedFetch = fetch('/pinnedTweets', {method: 'get'})
+			.then(function(response) {
+			    return response.json();
+			})
+
+        Promise.all([recentFetch, pinnedFetch])
+			.then(function(data) { 
 			    self.setState({recentTweets: data[0], pinnedTweets: data[1]});
 			})
 			.catch(function(error) {
 			    console.error('Error', error);
 			});
-	},
+    },
 
-	//React function that runs on first load and whenever the state is changed
-	render: function() {
-		var pinnedTweets = (this.state.pinnedTweets.length > 0) ? this.state.pinnedTweets.map(function(tweet) {
-		    // 'map' is a javascript array function
-		    return <Tweet key={tweet.Id} text={tweet.Text} />
-			})
+    pin: function(tweet) {
+        var self = this;
+
+        fetch('/pinTweet', {
+            method: 'post',
+            headers: new Headers({
+                'Content-Type' : 'application/json'
+            }),
+            body: JSON.stringify(tweet)
+        })
+        .then(function(response) {
+            var data = self.state.pinnedTweets;
+            data.push(tweet);
+            self.setState({pinnedTweets: data});
+        })
+        .catch(function(error) {
+            console.error('Error', error);
+        });
+    },
+
+    //React function that runs on first load and whenever the state is changed
+    render: function() {
+        var self = this;
+        var pinnedTweets = (this.state.pinnedTweets.length > 0) ? this.state.pinnedTweets.map(function(tweet) {
+            return <Tweet key={tweet.Id} text={tweet.Text} />
+            })
 			: null;
 
-		var recentTweets = (this.state.recentTweets.length > 0) ? this.state.recentTweets.map(function(tweet) {
-		    // 'map' is a javascript array function
-		    return (                
+        var recentTweets = (this.state.recentTweets.length > 0) ? this.state.recentTweets.map(function(tweet) {
+            return (                
                 <Tweet key={tweet.Id} text={tweet.Text}>
-                <Button label="Pin" /> // We're surrounding this Pin button with the tweet
-                </Tweet>
+                <Button link={function(){self.pin(tweet)}} label="Pin" />
+                </Tweet>                
             )
 		    })
 			: null;
