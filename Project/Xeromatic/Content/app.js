@@ -1,8 +1,24 @@
 ﻿//React component that takes in some text as a property and displays it
 var Tweet = React.createClass({
 	render: function() {
-		return <li className="list-group-item">{this.props.text}</li>
+	    return (
+            <li className="list-group-item">
+            {this.props.text}
+            {this.props.children}
+            </li>
+        )
 	}
+});
+
+var Button = React.createClass({ 
+    /* react components in uppercase (e.g. Button) so you know it's a react
+    component - something reusable, can be instantiated and included
+    in many different places */
+    render: function() {
+        return <button className="btn btn-info pull-right">{this.props.label}</button>
+        /* pull-right is a bootstrap class that makes it float to the
+        right side of the page */
+    }
 });
 
 //React component that makes a call to the API in the HomeController. If more than one tweet is returned, it displays a Tweet component for each.
@@ -47,7 +63,11 @@ var App = React.createClass({
 
 		var recentTweets = (this.state.recentTweets.length > 0) ? this.state.recentTweets.map(function(tweet) {
 		    // 'map' is a javascript array function
-		    return <Tweet key={tweet.Id} text={tweet.Text} />
+		    return (                
+                <Tweet key={tweet.Id} text={tweet.Text}>
+                <Button label="Pin" /> // We're surrounding this Pin button with the tweet
+                </Tweet>
+            )
 		    })
 			: null;
 
